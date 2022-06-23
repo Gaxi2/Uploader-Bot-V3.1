@@ -110,6 +110,32 @@ async def youtube_dl_call_back(bot, update):
             "-o", download_directory
         
         ]
+    elif tg_send_type == "video":
+        # command_to_exec = ["yt-dlp", "-f", youtube_dl_format, "--hls-prefer-ffmpeg", "--recode-video", "mp4", "-k", youtube_dl_url, "-o", download_directory]
+        minus_f_format = youtube_dl_format
+        if "youtu" in youtube_dl_url:
+            minus_f_format = youtube_dl_format + "+bestaudio"
+        command_to_exec = [
+            "yt-dlp",
+            "-c",
+            "--max-filesize", str(Config.TG_MAX_FILE_SIZE),
+            "--embed-subs",
+            "-f", minus_f_format,
+
+
+            "--geo-bypass",
+            
+            "--clean-info-json",
+            "--ignore-no-formats-error",
+            "--embed-subs",
+            
+            
+            "--prefer-ffmpeg",
+            youtube_dl_url,
+            "-o",
+            download_directory,
+        ]
+
     else:
 
         command_to_exec = [
@@ -127,6 +153,8 @@ async def youtube_dl_call_back(bot, update):
             "-o",
             download_directory,
         ]
+
+
  
 
     if Config.HTTP_PROXY != "":
@@ -179,21 +207,15 @@ async def youtube_dl_call_back(bot, update):
             download_directory = os.path.splitext(download_directory)[0] + "." + "mkv"
             # https://stackoverflow.com/a/678242/4723940
             file_size = os.stat(download_directory).st_size
-        try:
-            if tg_send_type == 'video' and 'webm' in download_directory:
-                ownload_directory = download_directory.rsplit('.', 1)[0] + '.mkv'
-                os.rename(download_directory, ownload_directory)
-                download_directory = ownload_directory
-        except:
-            pass
-
-        if file_size > Config.TG_MAX_FILE_SIZE:
+        if ((file_size > Config.TG_MAX_FILE_SIZE)):
             await update.message.edit_caption(
                 
                 caption=Translation.RCHD_TG_API_LIMIT.format(time_taken_for_download, humanbytes(file_size)),
                 parse_mode=enums.ParseMode.HTML
             )
         else:
+
+        
             is_w_f = False
             '''images = await generate_screen_shots(
                 download_directory,
